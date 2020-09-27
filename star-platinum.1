@@ -1,0 +1,56 @@
+.\" Copyright (c) 2020 Omar Polo <op@omarpolo.com>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.Dd $Mdocdate: September 27 2020$
+.Dt STAR-PLATINUM 1
+.Os
+.Sh NAME
+.Nm star-platinum
+.Nd key translator for xorg
+.Sh SYNOPSIS
+.Nm
+.Bk -words
+.Op Fl dn
+.Op Fl c Ar config
+.Ek
+.Sh DESCRIPTION
+.Nm
+is an utility to translate keybindings for X11 programs.
+It acts by grabbing some keys, say control n, and send a fake events
+when you press that sequence.
+The fake event will be possibly a different key, depending on the
+application that had the focus.
+.Pp
+The options are as follows:
+.Bl -tag -width keyword
+.It Fl c Ar conf
+load the configuration from the given file instead of the default
+.It Fl d
+print the config (as parsed).
+Useful for debugging
+.It Fl n
+config test mode
+.El
+.Sh CONFIGURATION FILE
+If a configuration file is not given with the
+.Fl c
+option, the default behaviour is to search for
+.Pa $HOME/.star-platinum.conf
+or
+.Pa $XDG_CONFIG_HOME/star-platinum.conf
+(where
+.Pa $XDG_CONFIG_HOME
+if not defined is assumed
+.Pa $HOME/.config )
+.Sh SEE ALSO
+.Xr star-platinum.conf 5

@@ -1,0 +1,83 @@
+.\" Copyright (c) 2020 Omar Polo <op@omarpolo.com>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.Dd $Mdocdate: September 27 2020$
+.Dt STAR-PLATINUM.CONF 5
+.Os
+.Sh NAME
+.Nm star-platinum.conf
+.Nd star-platinum configuration file
+.Sh DESCRIPTION
+.Nm
+is the configuration file for the
+.Xr star-platinum 1
+program.
+.Pp
+Empty lines are ignored, and comments too.
+Comments starts with a # sign and continue until the end of the line
+and can be placed everywhere in the configuration file.
+.Pp
+The configuration file is made of blocks.
+Every block starts with one or more
+.Ic match
+directives and continues with several keybinding directives.
+If more than a single
+.Ic match
+directive is given, the keybinding will be used if at least one of the
+.Ic match
+directives matches the window.
+That is, if both match class Firefox and match class Chromium is
+given, the directives will be available for both Firefox and Chromium
+windows.
+.Pp
+A keybinding directive is made of the
+.Ic on
+keyword followed by a keybinding, followed by the
+.Ic do
+keyword and an action.
+The action can be another keybinding, or a special internal command.
+.Pp
+The syntax for the keybindings is inspired
+.Xr emacs 1 .
+A keybindings is written within double quotes and is made of modifiers
+followed by the key.
+Modifiers follows the
+.Xr emacs 1
+notation of using C- to mean control, S- for shift, M- for alt (mod1)
+and s- for super (mod4).
+The key can be either a plain letter (e.g. x) or the name of the key
+written within angular brackets (e.g. <Down>).
+.Pp
+The only internal command available now is
+.Ic ignore Ns : it's a no-op.
+.Sh EXAMPLES
+The following is an example of configuration file that binds some
+.Xr emacs 1 Ns -esque keys for both Firefox and Chromium:
+.Bd -literal -offset indent
+match class Firefox
+match class Chromium-browser
+on "C-s" do "C-f"
+
+# clipboard
+on "C-w" do "C-x"
+on "M-w" do "C-c"
+on "C-y" do "C-v"
+
+# movements
+on "C-n" do "<Down>"
+on "C-p" do "<Up>"
+on "C-f" do "<Right>"
+on "C-b" do "<Left>"
+
+on "C-(" do ignore
+.Ed
