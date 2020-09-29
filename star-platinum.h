@@ -49,7 +49,8 @@ struct action {
 void			 do_action(struct action, Window, int);
 
 struct match {
-#define MCLASS		1
+#define MANY		1
+#define MCLASS		2
 	int prop;
 	char *str;
 	struct match *next;

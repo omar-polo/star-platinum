@@ -53,6 +53,7 @@ KeySym key = 0;
 "ignore"	return TIGNORE;
 
 "\n"		yylineno++; return '\n';
+"*"		return '*';
 
 [-a-zA-Z0-9]+	{
 			char *ident;

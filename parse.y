@@ -72,7 +72,8 @@ matches		: /* empty */		{ $$ = NULL; }
 		| matches match '\n'	{ $2->next = $1; $$ = $2; }
 		;
 
-match		: TMATCH TCLASS TSTRING { $$ = new_match(MCLASS, $3); }
+match		: TMATCH '*'		{ $$ = new_match(MANY, NULL); }
+		| TMATCH TCLASS TSTRING { $$ = new_match(MCLASS, $3); }
 		;
 
 keys		: /* empty */		{ $$ = NULL; }

@@ -366,6 +366,9 @@ int
 match_window(struct match *m, Window w)
 {
         switch (m->prop) {
+	case MANY:
+		return 1;
+
 	case MCLASS:
 		return window_match_class(w, m->str);
 		break;
