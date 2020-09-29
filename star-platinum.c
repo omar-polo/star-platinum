@@ -40,7 +40,7 @@ int goterror = 0;
 Display *d;
 
 int ignored_modifiers[] = {
-	0, 			/* no modifiers */
+	0,			/* no modifiers */
 	LockMask,		/* caps lock */
 	Mod2Mask,		/* num lock */
 	Mod3Mask,		/* scroll lock */
@@ -146,7 +146,7 @@ main(int argc, char **argv)
 	fname = NULL;
 
 	if (goterror)
-                return 1;
+		return 1;
 
 	if (dump_config)
 		printgroup(config);
@@ -216,7 +216,7 @@ grabkey(struct key k)
 
 	/* printf("Grabbing "); printkey(k); printf("\n"); */
 	for (i = 0; i < len; ++i) {
-                XGrabKey(d, XKeysymToKeycode(d, k.key),
+		XGrabKey(d, XKeysymToKeycode(d, k.key),
 		    k.modifier | ignored_modifiers[i],
 		    root, False, GrabModeAsync, GrabModeAsync);
 	}
@@ -286,7 +286,7 @@ window_match_class(Window w, const char *class)
 	XClassHint ch;
 	int matched;
 
-        if (!XGetClassHint(d, w, &ch)) {
+	if (!XGetClassHint(d, w, &ch)) {
 		fprintf(stderr, "XGetClassHint failed\n");
 		return 0;
 	}
@@ -325,7 +325,7 @@ do_action(struct action a, Window focused, int pressed)
 			/* unreachable */
 			abort();
 		}
-                break;
+		break;
 
 	default:
 		/* unreachable */
@@ -365,7 +365,7 @@ recfree_match(struct match *m)
 int
 match_window(struct match *m, Window w)
 {
-        switch (m->prop) {
+	switch (m->prop) {
 	case MANY:
 		return 1;
 
@@ -467,7 +467,7 @@ process_event(struct group *g, XKeyEvent *e)
 
 		for (r = g->rules; r != NULL; r = r->next) {
 			if (rule_matched(r, pressed)) {
-                                do_action(r->action, focused, e->type == KeyPress);
+				do_action(r->action, focused, e->type == KeyPress);
 				return;
 			}
 		}
