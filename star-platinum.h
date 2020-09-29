@@ -83,6 +83,7 @@ void			 process_event(struct group*, XKeyEvent*);
 int			 group_match(struct group*, Window);
 
 /* xlib-related */
+int			 error_handler(Display*, XErrorEvent*);
 void			 grabkey(struct key);
 KeySym			 keycode_to_keysym(unsigned int);
 Window			 focused_window();

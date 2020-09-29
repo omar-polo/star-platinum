@@ -161,6 +161,8 @@ main(int argc, char **argv)
 		return 1;
 	}
 
+	XSetErrorHandler(&error_handler);
+
 	root = DefaultRootWindow(d);
 
 	/* grab all the keys */
@@ -194,6 +196,13 @@ main(int argc, char **argv)
 
 
 /* xlib */
+
+int
+error_handler(Display *d, XErrorEvent *e)
+{
+	fprintf(stderr, "Xlib error %d\n", e->type);
+	return 1;
+}
 
 /* TODO: it should grab ALL POSSIBLE COMBINATIONS of `ignored_modifiers`! */
 void
