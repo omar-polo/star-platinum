@@ -27,6 +27,8 @@
 #include <err.h>
 #include <stdlib.h>
 
+void			 yyerror(const char*, ...);
+
 struct key {
 	unsigned int modifier;
 	KeySym key;

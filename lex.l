@@ -67,9 +67,6 @@ KeySym key = 0;
 <KEY>"\""	{
 			BEGIN(INITIAL);
 
-			if (key == NoSymbol)
-				return TERR;
-
 			yylval.key = (struct key){ state, key };
 			state = 0;
 			key = 0;
@@ -81,7 +78,7 @@ KeySym key = 0;
 <KEY>M-		{ state |= Mod1Mask; }
 <KEY>s-		{ state |= Mod4Mask; }
 
-<KEY><[_a-zA-Z]+> {
+<KEY><[^>]+>	{
 			char *c;
 
 			if ((c = strdup(yytext)) == NULL)
@@ -90,7 +87,8 @@ KeySym key = 0;
 			c++;			/* skip the < */
 			c[strlen(c)-1] = '\0';	/* trim the > */
 
-			key = XStringToKeysym(c);
+			if ((key = XStringToKeysym(c)) == NoSymbol)
+				yyerror("invalid keysym %s", c);
 
 			free(--c);
 		}
@@ -101,7 +99,10 @@ KeySym key = 0;
 <KEY>"("	{ key = XK_parenleft; }
 <KEY>")"	{ key = XK_parenright; }
 
-<KEY>.		{ key = XStringToKeysym(yytext); }
+<KEY>.		{
+			if ((key = XStringToKeysym(yytext)) == NoSymbol)
+				yyerror("invalid key %s", yytext);
+		}
 
 
 %%

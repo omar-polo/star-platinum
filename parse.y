@@ -19,11 +19,7 @@
 
 #include <stdio.h>
 
-#include <X11/Xlib.h>
-
 #include "star-platinum.h"
-
-void	 yyerror(const char*);
 
 /*
  * #define YYDEBUG 1

@@ -17,6 +17,7 @@
 #include "star-platinum.h"
 
 #include <err.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -49,11 +50,24 @@ int ignored_modifiers[] = {
 
 #define IGNORE_MODIFIERS (LockMask | Mod2Mask | Mod3Mask | Mod5Mask)
 
+__attribute__((__format__ (__printf__, 1, 2)))
 void
-yyerror(const char *e)
+yyerror(const char *fmt, ...)
 {
+	va_list ap;
+	size_t l;
+
+	va_start(ap, fmt);
+
 	goterror = 1;
-	fprintf(stderr, "%s:%d %s\n", fname, yylineno, e);
+	fprintf(stderr, "%s:%d ", fname, yylineno);
+	vfprintf(stderr, fmt, ap);
+
+	l = strlen(fmt);
+	if (l > 0 && fmt[l-1] != '\n')
+		fprintf(stderr, "\n");
+
+	va_end(ap);
 }
 
 char *
