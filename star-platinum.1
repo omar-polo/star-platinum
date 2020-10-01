@@ -54,3 +54,24 @@ if not defined is assumed
 .Pa $HOME/.config )
 .Sh SEE ALSO
 .Xr star-platinum.conf 5
+.Sh ENVIRONMENT
+.Bl -tag -width keyword
+.It Ev DISPLAY
+the X11 display to use.
+.It Ev HOME
+the user home directory.
+.\" XXX: keep in sync with star-platinum.conf.5
+.It Ev SHELL
+The user preferred shell.
+If not provided
+.Pa /bin/sh
+is assumed.
+This executable must accept a
+.Fl c
+flag to execute a string.
+.It Ev XDG_CONFIG_HOME
+used when searching for a configuration file.
+If not provided
+.Pa $HOME/.config
+is assumed.
+.El

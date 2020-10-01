@@ -24,8 +24,8 @@ is the configuration file for the
 program.
 .Pp
 Empty lines are ignored, and comments too.
-Comments starts with a # sign and continue until the end of the line
-and can be placed everywhere in the configuration file.
+Comments starts with a # sign and continue until the end of the line.
+Comments can be placed everywhere, not only at the start of the line.
 .Pp
 The configuration file is made of blocks.
 Every block starts with one or more
@@ -35,10 +35,7 @@ If more than a single
 .Ic match
 directive is given, the keybinding will be used if at least one of the
 .Ic match
-directives matches the window.
-That is, if both match class Firefox and match class Chromium is
-given, the directives will be available for both Firefox and Chromium
-windows.
+directives matches the focused window.
 .Pp
 A keybinding directive is made of the
 .Ic on
@@ -47,6 +44,42 @@ keyword followed by a keybinding, followed by the
 keyword and an action.
 The action can be another keybinding, or a special internal command.
 .Pp
+Special attention must be payed to quoting, as there are two different
+types of quoting with different behaviors:
+.Bl -bullet
+.It
+double quotes are used for keybindings.
+So, for instance, "C-a" is a valid keybinding, but 'C-a' is not.
+.It
+single quotes are used to denote strings.
+Strings can include any character, except the literal single quote,
+and are kept verbatim: no special interpretation of character is made.
+.El
+.Sh MATCHING WINDOWS
+The
+.Ic match
+keyword is used to match on windows.
+.Ic match
+can either accept the special keyword
+.Ic all
+or match on a predicate.
+.Pp
+.Ic match all
+matches all windows, even the root window.
+.Pp
+The only predicate supported as of now is the
+.Ic class
+predicate.
+.Ic class
+takes a string and matches only windows whose class is equal to the
+one given.
+.Pp
+Lastly,
+.Ic match
+directives are not alone: any sequence of contiguous match are joined,
+so that the same key bindings can defined for more window.
+This joining is extensive, and not reductive.
+.Sh KEY BINDINGS
 The syntax for the keybindings is inspired
 .Xr emacs 1 .
 A keybindings is written within double quotes and is made of modifiers
@@ -57,15 +90,67 @@ notation of using C- to mean control, S- for shift, M- for alt (mod1)
 and s- for super (mod4).
 The key can be either a plain letter (e.g. x) or the name of the key
 written within angular brackets (e.g. <Down>).
+See
+.Pa /usr/X11R6/include/X11/keysymdef.h
+and
+.Xr XStringToKeysym 3
+for more information on the names allowed inside the angular brackets.
 .Pp
-The only internal command available now is
-.Ic ignore Ns : it's a no-op.
+The only exceptions are a couple of keys that are available under a
+special syntax:
+.Bl -tag -indent keyword
+.It Ic SPC
+is a short-hand for
+.Ic <space>
+.It Ic RET
+is a short-hand for
+.Ic <Return>
+.It Ic (
+is a short-hand for
+.Ic <parenleft>
+.It Ic )
+is a short-hand for
+.Ic <parenright>
+.El
+.Sh ACTIONS
+When a key bindings is matched against a specific window, the
+appropriate action is executed.
+There are different types of possible actions:
+.Bl -tag -width 10m
+.It a key
+send the specified key to the focused window
+.It Ic exec Ql cmd
+exec
+.Ql cmd
+using the user shell'
+.Fl c
+flag.
+.It Ic ignore
+a no-op.
+It does nothing, but prevents the focused window from seeing that key.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width keyword
+.\" XXX: keep in sync with star-platinum.1
+.It Ev SHELL
+The user preferred shell.
+If not provided
+.Pa /bin/sh
+is assumed.
+This executable must accept a
+.Fl c
+flag to execute a string.
+.El
 .Sh EXAMPLES
 The following is an example of configuration file that binds some
 .Xr emacs 1 Ns -esque keys for both Firefox and Chromium:
 .Bd -literal -offset indent
-match class Firefox
-match class Chromium-browser
+# a global binding
+match all
+on "C-<F5>" do exec 'notify-send "hello world"'
+
+match class 'Firefox'           # matching firefox OR
+match class 'Chromium-browser'  # matching chromium
 on "C-s" do "C-f"
 
 # clipboard
