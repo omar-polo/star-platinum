@@ -31,7 +31,10 @@
 #define EXEC(S) ((struct action){.type = (AEXEC), .str = (S) })
 
 %}
- 
+
+/* for bison: */
+/* %define parse.error verbose */
+
 %union {
 	struct key key;
 	char *str;
@@ -58,7 +61,6 @@
 
 groups		: /* empty */		{ $$ = NULL; }
 		| groups group		{ $2->next = $1; config = $$ = $2; }
-		| error '\n'
 		;
 
 group		: matches keys		{ $$ = new_group($1, $2); }
@@ -71,11 +73,13 @@ matches		: /* empty */		{ $$ = NULL; }
 
 match		: TMATCH TALL		{ $$ = new_match(MANY, NULL); }
 		| TMATCH TCLASS TSTRING { $$ = new_match(MCLASS, $3); }
+		| error '\n'		{ yyerror("invalid match directive"); }
 		;
 
 keys		: /* empty */		{ $$ = NULL; }
 		| keys '\n'		{ $$ = $1; }
 		| keys key '\n'		{ $2->next = $1; $$ = $2; }
+		| error '\n'		{ yyerror("invalid key definition"); }
 		;
 
 key		: TON TKEY TDO action	{ $$ = new_rule($2, $4); }
