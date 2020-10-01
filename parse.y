@@ -41,7 +41,7 @@
 	struct group *group;
 }
 
-%token TMATCH TCLASS
+%token TMATCH TCLASS TALL
 %token TON TDO
 %token TTOGGLE TACTIVATE TDEACTIVATE TIGNORE TEXEC
 %token TERR
@@ -69,7 +69,7 @@ matches		: /* empty */		{ $$ = NULL; }
 		| matches match '\n'	{ $2->next = $1; $$ = $2; }
 		;
 
-match		: TMATCH '*'		{ $$ = new_match(MANY, NULL); }
+match		: TMATCH TALL		{ $$ = new_match(MANY, NULL); }
 		| TMATCH TCLASS TSTRING { $$ = new_match(MCLASS, $3); }
 		;
 

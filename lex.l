@@ -1,4 +1,4 @@
-/* -*- mode:fundamental; indent-tabs-mode: t; -*- */
+/* -*- mode:c; indent-tabs-mode: t; -*- */
 %{
 
 /*
@@ -34,76 +34,77 @@ KeySym key = 0;
 
 %x COMMENT
 %x KEY
+%x STRING
 
 %%
 
-"#"		{ BEGIN(COMMENT); }
-<COMMENT>\n	{ yylineno++; BEGIN(INITIAL); }
-<COMMENT>.	;
+<INITIAL>#	BEGIN(COMMENT);
+<COMMENT>.*\n	yylineno++; BEGIN(INITIAL); return '\n';
 
-[ \t\r\v\f]+	;
+<INITIAL>\"	BEGIN(KEY);
+<KEY>\"		{
+	BEGIN(INITIAL);
+	yylval.key = (struct key){ state, key };
+	state = 0;
+	key = 0;
+	return TKEY;
+ }
 
-"match"		return TMATCH;
-"class"		return TCLASS;
-"on"		return TON;
-"do"		return TDO;
-"toggle"	return TTOGGLE;
-"activate"	return TACTIVATE;
-"deactivate"	return TDEACTIVATE;
-"ignore"	return TIGNORE;
-
-"\n"		yylineno++; return '\n';
-"*"		return '*';
-
-[-a-zA-Z0-9]+	{
-			char *ident;
-			if ((ident = strdup(yytext)) == NULL)
-				err(1, "strdup");
-			yylval.str = ident;
-			return TSTRING;
-		}
-
-"\""		{ BEGIN(KEY); }
-<KEY>"\""	{
-			BEGIN(INITIAL);
-
-			yylval.key = (struct key){ state, key };
-			state = 0;
-			key = 0;
-			return TKEY;
-		}
-
-<KEY>C-		{ state |= ControlMask; }
-<KEY>S-		{ state |= ShiftMask; }
-<KEY>M-		{ state |= Mod1Mask; }
-<KEY>s-		{ state |= Mod4Mask; }
+<KEY>C-		state |= ControlMask;
+<KEY>S-		state |= ShiftMask;
+<KEY>M-		state |= Mod1Mask;
+<KEY>s-		state |= Mod4Mask;
 
 <KEY><[^>]+>	{
-			char *c;
+	char *c;
 
-			if ((c = strdup(yytext)) == NULL)
-                                err(1, "strdup");
+	if ((c = strdup(yytext)) == NULL)
+		err(1, "strdup");
 
-			c++;			/* skip the < */
-			c[strlen(c)-1] = '\0';	/* trim the > */
+	c++;			/* skip the < */
+	c[strlen(c)-1] = '\0';	/* trim the > */
 
-			if ((key = XStringToKeysym(c)) == NoSymbol)
-				yyerror("invalid keysym %s", c);
+	if ((key = XStringToKeysym(c)) == NoSymbol)
+		yyerror("invalid keysym %s", c);
 
-			free(--c);
-		}
+	free(--c);
+ }
 
-<KEY>SPC	{ key = XK_space; }
-<KEY>RET	{ key = XK_Return; }
+<KEY>SPC	key = XK_space;
+<KEY>RET	key = XK_Return;
 
-<KEY>"("	{ key = XK_parenleft; }
-<KEY>")"	{ key = XK_parenright; }
+<KEY>"("	key = XK_parenleft;
+<KEY>")"	key = XK_parenright;
 
 <KEY>.		{
-			if ((key = XStringToKeysym(yytext)) == NoSymbol)
-				yyerror("invalid key %s", yytext);
-		}
+	if ((key = XStringToKeysym(yytext)) == NoSymbol)
+		yyerror("invalid key %s", yytext);
+ }
 
+<INITIAL>\'	BEGIN(STRING);
+<STRING>[^']*\'	{
+	if ((yylval.str = strdup(yytext)) == NULL)
+		err(1, "strdup");
+	yylval.str[strlen(yylval.str)-1] = '\0'; /* remove the closing quote */
+	BEGIN(INITIAL);
+	return TSTRING;
+ }
+
+match		return TMATCH;
+class		return TCLASS;
+on		return TON;
+do		return TDO;
+toggle		return TTOGGLE;
+activate	return TACTIVATE;
+deactivate	return TDEACTIVATE;
+ignore		return TIGNORE;
+exec		return TEXEC;
+all		return TALL;
+
+\n		yylineno++; return '\n';
+[ \r\t\f]+
+
+.		return TERR;
 
 %%
 
