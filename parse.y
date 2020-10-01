@@ -28,6 +28,7 @@
 
 #define SPECIAL(X) ((struct action){.type = (ASPECIAL), .special = (X) })
 #define FAKE_KEY(K) ((struct action){.type = (AFAKE), .send_key = (K) })
+#define EXEC(S) ((struct action){.type = (AEXEC), .str = (S) })
 
 %}
  
@@ -42,7 +43,7 @@
 
 %token TMATCH TCLASS
 %token TON TDO
-%token TTOGGLE TACTIVATE TDEACTIVATE TIGNORE
+%token TTOGGLE TACTIVATE TDEACTIVATE TIGNORE TEXEC
 %token TERR
 
 %token <key>	TKEY
@@ -85,4 +86,5 @@ action		: TKEY			{ $$ = FAKE_KEY($1); }
 		| TACTIVATE		{ $$ = SPECIAL(AACTIVATE); }
 		| TDEACTIVATE		{ $$ = SPECIAL(ADEACTIVATE); }
 		| TIGNORE		{ $$ = SPECIAL(AIGNORE); }
+		| TEXEC TSTRING		{ $$ = EXEC($2); }
 		;

@@ -37,18 +37,21 @@ struct key {
 struct action {
 #define ASPECIAL	1
 #define AFAKE		2
+#define AEXEC		3
 	int type;
 	union {
-#define ATOGGLE		3
-#define AACTIVATE	4
-#define ADEACTIVATE	5
-#define AIGNORE		6
+#define ATOGGLE		1
+#define AACTIVATE	2
+#define ADEACTIVATE	3
+#define AIGNORE		4
 		int special;
 		struct key send_key;
+		char *str;
 	};
 };
 
 void			 do_action(struct action, Window, int);
+void			 free_action(struct action);
 
 struct match {
 #define MANY		1

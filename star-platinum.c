@@ -17,6 +17,7 @@
 #include "star-platinum.h"
 
 #include <err.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -123,6 +124,8 @@ main(int argc, char **argv)
 	XEvent e;
 	Window root;
 
+	signal(SIGCHLD, SIG_IGN); /* don't allow zombies */
+
 	fname = NULL;
 	while ((ch = getopt(argc, argv, "c:dn")) != -1) {
 		switch (ch) {
@@ -187,7 +190,7 @@ main(int argc, char **argv)
 	XSelectInput(d, root, KeyPressMask);
 	XFlush(d);
 
-	pledge("stdio", "");
+	pledge("stdio proc exec", NULL);
 
 	while (1) {
 		XNextEvent(d, &e);
@@ -341,10 +344,36 @@ do_action(struct action a, Window focused, int pressed)
 		}
 		break;
 
+	case AEXEC: {
+		pid_t p;
+		const char *sh;
+
+		switch (p = fork()) {
+		case -1:
+			err(1, "fork");
+
+		case 0:
+			if ((sh = getenv("SHELL")) == NULL)
+				sh = "/bin/sh";
+			printf("before exec'ing %s -c '%s'\n", sh, a.str);
+			execlp(sh, sh, "-c", a.str, NULL);
+			err(1, "execlp");
+		}
+
+		break;
+	}
+
 	default:
 		/* unreachable */
 		abort();
 	}
+}
+
+void
+free_action(struct action a)
+{
+	if (a.type == AEXEC)
+		free(a.str);
 }
 
 
@@ -522,16 +551,29 @@ printkey(struct key k)
 void
 printaction(struct action a)
 {
-	if (a.type == ASPECIAL) {
+	switch (a.type) {
+	case ASPECIAL:
 		switch (a.special) {
 		case ATOGGLE: printf("toggle"); break;
 		case AACTIVATE: printf("activate"); break;
 		case ADEACTIVATE: printf("deactivate"); break;
 		case AIGNORE: printf("ignore"); break;
+		default: abort(); /* unreachable */
 		}
-	} else {
+		break;
+
+	case AFAKE:
 		printf("send key ");
 		printkey(a.send_key);
+		break;
+
+	case AEXEC:
+		printf("exec %s", a.str);
+		break;
+
+	default:
+		/* unreachable */
+		abort();
 	}
 }
 
@@ -544,13 +586,16 @@ printmatch(struct match *m)
 	}
 	printf("match ");
 	switch (m->prop) {
+	case MANY:
+		printf("all");
+		break;
 	case MCLASS:
-		printf("class");
+		printf("class %s", m->str);
 		break;
 	default:
+		/* unreachable */
 		abort();
 	}
-	printf(" %s", m->str);
 
 	if (m->next == NULL)
 		printf("\n");
