@@ -13,19 +13,27 @@ Check out the [manpage](star-platinum.1) for more information.
 
     make
 
+OpenBSD' `lex` and `yacc` were tested, as well as `bison` 3.3.2, GNU
+gcc 4.2.1 and 8.4.0, and clang 10.0.1
+
 Configuration for the build process can be found in `config.mk`, but
 you usually don't need to modify it: passing the variables to make
 should be enough.  For instance, to build with `gcc`
 
     make CC=gcc
 
+`bison` can be used instead of `yacc` by changing the `YACC` variable
+
+    make YACC=bison
+
+Unless you are compiling on OpenBSD, you probably want to change the
+default `CFLAGS` and `LDFLAGS`.
+
+If `etags` is available, a `TAGS` file is created.  Note however that
+`etags` is **not needed** for building: it's only a support tool used
+to aid the development.
+
 ## FAQ
-
- - *something something* bison *something something*
-
-   `star-platinum` should build with GNU `bison` and flex, but I've
-   still not tried.  `bison` has some defaults different from `yacc`
-   IIRC, so additional flags may be needed.
 
  - the name is a jojo reference?
 
