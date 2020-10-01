@@ -8,7 +8,7 @@ lex.yy.c: lex.l y.tab.c
 	${LEX} lex.l
 
 y.tab.c: parse.y
-	${YACC} -d parse.y
+	${YACC} -b y -d parse.y
 
 OBJS = star-platinum.o lex.yy.o y.tab.o
 star-platinum: ${OBJS}
