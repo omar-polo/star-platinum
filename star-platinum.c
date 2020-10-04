@@ -271,27 +271,32 @@ focused_window()
 }
 
 void
-send_fake(Window w, struct key k, int pressed)
+send_fake(Window w, struct key k, XKeyEvent *original)
 {
 	XKeyEvent e;
 
-	e.type = pressed ? KeyPress : KeyRelease;
-
-	e.display = d;
+	/*
+	 * this needs to be hijacked. original->window is the root
+	 * window (since we grabbed the key there) and we want to
+	 * deliver the key to another window.
+	 */
 	e.window = w;
-	e.root = DefaultRootWindow(d);
-	e.subwindow = None;
-	e.time = CurrentTime;
 
-	/* TODO: fix these */
-	e.x = 1;
-	e.y = 1;
-	e.x_root = 1;
-	e.y_root = 1;
-
-	e.same_screen = True;
+	/* this is the fake key */
 	e.keycode = XKeysymToKeycode(d, k.key);
 	e.state = k.modifier;
+
+	/* the rest is just copying fields from the original event */
+	e.type = original->type;
+	e.display = original->display;
+	e.root = original->root;
+	e.subwindow = original->subwindow;
+	e.time = original->time;
+	e.same_screen = original->same_screen;
+	e.x = original->x;
+	e.y = original->y;
+	e.x_root = original->x_root;
+	e.y_root = original->y_root;
 
 	XSendEvent(d, w, True, KeyPressMask, (XEvent*)&e);
 	XFlush(d);
@@ -320,11 +325,11 @@ window_match_class(Window w, const char *class)
 /* action */
 
 void
-do_action(struct action a, Window focused, int pressed)
+do_action(struct action a, Window focused, XKeyEvent *original)
 {
 	switch (a.type) {
 	case AFAKE:
-		send_fake(focused, a.send_key, pressed);
+		send_fake(focused, a.send_key, original);
 		break;
 
 	case ASPECIAL:
@@ -510,13 +515,13 @@ process_event(struct group *g, XKeyEvent *e)
 
 		for (r = g->rules; r != NULL; r = r->next) {
 			if (rule_matched(r, pressed)) {
-				do_action(r->action, focused, e->type == KeyPress);
+				do_action(r->action, focused, e);
 				return;
 			}
 		}
 	}
 
-	send_fake(focused, pressed, e->type == KeyPress);
+	send_fake(focused, pressed, e);
 }
 
 int

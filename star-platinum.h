@@ -50,7 +50,7 @@ struct action {
 	};
 };
 
-void			 do_action(struct action, Window, int);
+void			 do_action(struct action, Window, XKeyEvent*);
 void			 free_action(struct action);
 
 struct match {
@@ -93,7 +93,7 @@ int			 error_handler(Display*, XErrorEvent*);
 void			 grabkey(struct key);
 KeySym			 keycode_to_keysym(unsigned int);
 Window			 focused_window();
-void			 send_fake(Window, struct key, int);
+void			 send_fake(Window, struct key, XKeyEvent*);
 int			 window_match_class(Window, const char*);
 
 /* debugging */
