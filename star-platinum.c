@@ -353,6 +353,10 @@ do_action(struct action a, Window focused, XKeyEvent *original)
 		pid_t p;
 		const char *sh;
 
+		/* exec only on key press */
+		if (original->type == KeyRelease)
+			break;
+
 		switch (p = fork()) {
 		case -1:
 			err(1, "fork");
