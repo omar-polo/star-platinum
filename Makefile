@@ -15,7 +15,7 @@ star-platinum: ${OBJS}
 	${CC} -o $@ ${OBJS} ${LDFLAGS}
 
 TAGS: star-platinum.c star-platinum.h parse.y lex.l
-	-${ETAGS} star-platinum.c star-platinum.h parse.y lex.l
+	-${ETAGS} star-platinum.c star-platinum.h parse.y lex.l || true
 
 clean:
 	rm -f star-platinum ${OBJS} lex.yy.c y.tab.c y.tab.h y.output
