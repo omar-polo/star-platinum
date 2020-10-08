@@ -185,7 +185,7 @@ main(int argc, char **argv)
 	/* grab all the keys */
 	for (g = config; g != NULL; g = g->next)
 		for (r = g->rules; r != NULL; r = r->next)
-			grabkey(r->key);
+			grabkey(r->key, root);
 
 	XSelectInput(d, root, KeyPressMask);
 	XFlush(d);
@@ -223,19 +223,16 @@ error_handler(Display *d, XErrorEvent *e)
 
 /* TODO: it should grab ALL POSSIBLE COMBINATIONS of `ignored_modifiers`! */
 void
-grabkey(struct key k)
+grabkey(struct key k, Window w)
 {
 	static size_t len = sizeof(ignored_modifiers)/sizeof(int);
 	size_t i;
-	Window root;
-
-	root = DefaultRootWindow(d);
 
 	/* printf("Grabbing "); printkey(k); printf("\n"); */
 	for (i = 0; i < len; ++i) {
 		XGrabKey(d, XKeysymToKeycode(d, k.key),
 		    k.modifier | ignored_modifiers[i],
-		    root, False, GrabModeAsync, GrabModeAsync);
+		    w, False, GrabModeAsync, GrabModeAsync);
 	}
 }
 

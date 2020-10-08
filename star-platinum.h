@@ -90,7 +90,7 @@ int			 group_match(struct group*, Window);
 
 /* xlib-related */
 int			 error_handler(Display*, XErrorEvent*);
-void			 grabkey(struct key);
+void			 grabkey(struct key, Window);
 KeySym			 keycode_to_keysym(unsigned int);
 Window			 focused_window();
 void			 send_fake(Window, struct key, XKeyEvent*);
