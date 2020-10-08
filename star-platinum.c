@@ -119,8 +119,6 @@ int
 main(int argc, char **argv)
 {
 	int status = 0, dump_config = 0, conftest = 0, ch;
-	struct group *g;
-	struct rule *r;
 	XEvent e;
 	Window root;
 
@@ -182,12 +180,9 @@ main(int argc, char **argv)
 
 	root = DefaultRootWindow(d);
 
-	/* grab all the keys */
-	for (g = config; g != NULL; g = g->next)
-		for (r = g->rules; r != NULL; r = r->next)
-			grabkey(r->key, root);
+	grabkey_matching_windows();
 
-	XSelectInput(d, root, KeyPressMask);
+	XSelectInput(d, root, SubstructureNotifyMask | KeyPressMask);
 	XFlush(d);
 
 	pledge("stdio proc exec", NULL);
@@ -198,6 +193,20 @@ main(int argc, char **argv)
 		case KeyRelease:
 		case KeyPress:
 			process_event(config, (XKeyEvent*)&e);
+			break;
+
+		case MapNotify: {
+			XMapEvent *ev = (XMapEvent*)&e;
+			grab_matching_keys(ev->window);
+			break;
+		}
+
+		case UnmapNotify:
+		case ConfigureNotify:
+		case CreateNotify:
+		case DestroyNotify:
+		case ClientMessage:
+			/* ignored */
 			break;
 
 		default:
@@ -234,6 +243,41 @@ grabkey(struct key k, Window w)
 		    k.modifier | ignored_modifiers[i],
 		    w, False, GrabModeAsync, GrabModeAsync);
 	}
+}
+
+void
+grab_matching_keys(Window w)
+{
+	XClassHint ch;
+	struct group *g;
+	struct rule *r;
+
+	if (!XGetClassHint(d, w, &ch))
+		return;
+
+	for (g = config; g != NULL; g = g->next) {
+		if (!group_match(g, w))
+			continue;
+
+		for (r = g->rules; r != NULL; r = r->next)
+			grabkey(r->key, w);
+	}
+}
+
+int
+grabkey_matching_windows()
+{
+	Window root, parent, *children;
+	unsigned int len, i;
+
+	root = DefaultRootWindow(d);
+	if (!XQueryTree(d, root, &root, &parent, &children, &len))
+		return 0;
+
+	for (i = 0; i < len; ++i)
+		grab_matching_keys(children[i]);
+
+	return 1;
 }
 
 KeySym

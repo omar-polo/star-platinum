@@ -91,6 +91,8 @@ int			 group_match(struct group*, Window);
 /* xlib-related */
 int			 error_handler(Display*, XErrorEvent*);
 void			 grabkey(struct key, Window);
+void			 grab_matching_keys(Window);
+int			 grabkey_matching_windows();
 KeySym			 keycode_to_keysym(unsigned int);
 Window			 focused_window();
 void			 send_fake(Window, struct key, XKeyEvent*);
