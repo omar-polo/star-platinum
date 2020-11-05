@@ -35,6 +35,12 @@ to aid the development.
 
 ## FAQ
 
+ - it does not seems to work!
+
+   There’s currently a limitation, star-platinum won’t work with
+   reparenting window manager (such as the heavier DE, but also some
+   lighter WM like stumpwm or i3).
+
  - the name is a jojo reference?
 
    Sort of.  I was listening to 「sono chi kioku」, the fourth opening,
